@@ -1,6 +1,8 @@
 const fs = require("fs");
-const {CommandManager} = require("./Commands.js");
+const { CommandManager } = require("./Commands.js");
 const PATH = require("path");
+const chalk = require("chalk");
+const AoiError = require("./AoiError");
 
 class LoadCommands {
     constructor(client, addClassInClient = true) {
@@ -14,146 +16,142 @@ class LoadCommands {
 
     get allColors() {
         return {
-            reset: "\x1b[0m",
-            bright: "\x1b[1m",
-            dim: "\x1b[2m",
-            underscore: "\x1b[4m",
-            blink: "\x1b[5m",
-            reverse: "\x1b[7m",
-            hidden: "\x1b[8m",
+            reset: chalk.reset,
+            bright: chalk.bold,
+            dim: chalk.dim,
+            underscore: chalk.underline,
+            blink: chalk.blink,
+            reverse: chalk.inverse,
+            hidden: chalk.hidden,
 
-            fgBlack: "\x1b[30m",
-            fgRed: "\x1b[31m",
-            fgGreen: "\x1b[32m",
-            fgYellow: "\x1b[33m",
-            fgBlue: "\x1b[34m",
-            fgMagenta: "\x1b[35m",
-            fgCyan: "\x1b[36m",
-            fgWhite: "\x1b[37m",
+            fgBlack: chalk.black,
+            fgRed: chalk.red,
+            fgGreen: chalk.green,
+            fgYellow: chalk.yellow,
+            fgBlue: chalk.blue,
+            fgMagenta: chalk.magenta,
+            fgCyan: chalk.cyan,
+            fgWhite: chalk.white,
+            fgGray: chalk.gray,
 
-            bgBlack: "\x1b[40m",
-            bgRed: "\x1b[41m",
-            bgGreen: "\x1b[42m",
-            bgYellow: "\x1b[43m",
-            bgBlue: "\x1b[44m",
-            bgMagenta: "\x1b[45m",
-            bgCyan: "\x1b[46m",
-            bgWhite: "\x1b[47m",
+            bgBlack: chalk.bgBlack,
+            bgGray: chalk.bgGray,
+            bgRed: chalk.bgRed,
+            bgGreen: chalk.bgGreen,
+            bgYellow: chalk.bgYellow,
+            bgBlue: chalk.bgBlue,
+            bgMagenta: chalk.bgMagenta,
+            bgCyan: chalk.bgCyan,
+            bgWhite: chalk.bgWhite
         };
     }
 
     get themes() {
         return {
             default: {
-                loading: ["blink", "dim", "fgWhite"],
+                loading: [chalk.blink, chalk.dim, chalk.white],
                 failedLoading: {
-                    name: ["bright", "fgYellow", "underline"],
-                    text: ["bright", "fgRed"],
+                    name: [chalk.bold.yellow, chalk.underline],
+                    text: [chalk.bold.red]
                 },
                 typeError: {
-                    command: ["bright", "fgYellow"],
-                    type: ["fgYellow"],
-                    text: ["bright", "fgRed"],
+                    command: [chalk.bold.yellow],
+                    type: [chalk.yellow],
+                    text: [chalk.bold.red]
                 },
                 failLoad: {
-                    command: ["bright", "fgMagenta"],
-                    type: ["fgRed"],
-                    text: ["bright", "fgRed"],
+                    command: [chalk.bold.magenta],
+                    type: [chalk.red],
+                    text: [chalk.bold.red]
                 },
                 loaded: {
-                    command: ["bright", "fgCyan"],
-                    type: ["bright", "fgBlue"],
-                    text: ["bright", "fgGreen"],
-                },
+                    command: [chalk.bold.cyan],
+                    type: [chalk.bold.blue],
+                    text: [chalk.bold.green]
+                }
             },
             diff: {
-                loading: ["fgGreen"],
+                loading: [chalk.green],
                 failedLoading: {
-                    text: ["fgRed"],
-                    name: ["bright", "fgRed"],
+                    text: [chalk.red],
+                    name: [chalk.bold.red]
                 },
                 typeError: {
-                    command: ["bright", "fgRed"],
-                    type: ["fgRed"],
-                    text: ["dim", "fgRed"],
+                    command: [chalk.bold.red],
+                    type: [chalk.red],
+                    text: [chalk.dim.red]
                 },
                 failLoad: {
-                    command: ["bright", "fgRed"],
-                    type: ["fgRed"],
-                    text: ["dim", "fgRed"],
+                    command: [chalk.bold.red],
+                    type: [chalk.red],
+                    text: [chalk.dim.red]
                 },
                 loaded: {
-                    command: ["bright", "fgCyan"],
-                    type: ["fgCyan"],
-                    text: ["dim", "fgCyan"],
-                },
-            },
+                    command: [chalk.bold.cyan],
+                    type: [chalk.cyan],
+                    text: [chalk.dim.cyan]
+                }
+            }
         };
     }
 
+    logMessage(message, color) {
+        console.log(color ? color(message) : message);
+    }
+
     async load(client, path, debug = true) {
-        function isObject(data) {
-            return (
-                data instanceof Object &&
-                !Buffer.isBuffer(data) &&
-                !Array.isArray(data) &&
-                !(data instanceof RegExp)
+        const isObject = (data) => data instanceof Object && !Buffer.isBuffer(data) && !Array.isArray(data) && !(data instanceof RegExp);
+
+        const walk = async (file) => {
+            const something = await fs.promises.readdir(file, { withFileTypes: true }).then((f) =>
+                f.map((d) => {
+                    d.name = `${file}${PATH.sep}${d.name}`;
+                    return d;
+                })
             );
-        }
-
-        async function walk(file) {
-            const something = await fs.promises
-                .readdir(file, {withFileTypes: true})
-                .then((f) => {
-                    return f.map((d) => {
-                        d.name = `${file}${PATH.sep}${d.name}`;
-
-                        return d;
-                    });
-                });
 
             const files = something.filter((d) => d.isFile());
             const dirs = something.filter((d) => d.isDirectory());
 
             for (const d of dirs) {
                 const items = await walk(d.name);
-
                 files.push(...items);
             }
 
             return files;
-        }
+        };
 
-        if (typeof path !== "string")
-            throw new TypeError(
-                `Expecting typeof string on 'path' parameter, get '${typeof path}' instead`,
-            );
+        if (typeof path !== "string") {
+            throw new TypeError(`Expecting typeof string on 'path' parameter, got '${typeof path}' instead`);
+        }
 
         if (!PATH.isAbsolute(path)) path = PATH.resolve(path);
 
         try {
-            if (await fs.promises.stat(path).then((f) => !f.isDirectory()))
+            const stats = await fs.promises.stat(path);
+            if (!stats.isDirectory()) {
                 throw new TypeError("Path is not a valid directory!");
+            }
         } catch (e) {
-            throw new TypeError("Path is not a valid directory! ErrorMessage: " + e);
+            throw new TypeError(`Path is not a valid directory! ErrorMessage: ${e}`);
         }
 
         const index = this.paths.findIndex((d) => d.path === path);
 
-        if (index < 0)
+        if (index < 0) {
             this.paths.push({
                 path,
                 debug,
                 commandsLocation: client,
-                keys: Object.keys(client),
+                keys: client instanceof CommandManager ? client.types : Object.keys(client)
             });
+        }
 
         const validCmds = Object.getOwnPropertyNames(client);
-
         const dirents = await walk(path);
-        const debugs = [];
+        let debugs = [];
 
-        for (const {name} of dirents) {
+        for (const { name } of dirents) {
             delete require.cache[name];
 
             let cmds;
@@ -161,55 +159,36 @@ class LoadCommands {
             try {
                 cmds = require(name);
             } catch {
-                debugs.push(
-                    `${this.colors.failedLoading?.text || ""}Failed to load in ${
-                        this.colors.failedLoading?.name || ""
-                    }${name}${this.allColors.reset || ""}`,
-                );
-
+                debugs.push(`${chalk.red("✖ Failed to load")} ${name}`);
+                debugs.push("- " + name.split(PATH.sep).slice(-2).join(PATH.sep));
                 continue;
             }
 
             if (cmds == null) {
-                debugs.push(
-                    `${this.colors.noData?.text || ""} No data provided in ${
-                        this.colors.noData?.name || ""
-                    }${name}${this.allColors.reset || ""}`,
-                );
-
+                debugs.push(`${chalk.red("✖ No data provided in")} ${name}`);
+                debugs.push("- " + name.split(PATH.sep).slice(-2).join(PATH.sep));
                 continue;
             }
 
             if (!Array.isArray(cmds)) cmds = [cmds];
 
-            debugs.push(
-                `|${this.colors?.loading || ""} Loading in ${name}${
-                    this.allColors.reset || ""
-                } |`,
-            );
-
             for (const cmd of cmds) {
-                if (!isObject(cmd)) {
-                    debugs.push(` Provided data is not an object`);
+                const path = name.split(PATH.sep);
+                const pathName = path.length > 2 ? path.slice(-3).join(PATH.sep) : name;
 
+                if (!isObject(cmd)) {
+                    const debugMessage = `${chalk.red("✖ Provided data is not an object in")} ${pathName}`;
+                    debugs.push(debugMessage);
                     continue;
                 }
 
                 if (!("type" in cmd)) cmd.type = "default";
 
-                const valid = validCmds.some((c) => c === cmd.type);
+                const valid = validCmds.includes(cmd.type);
 
                 if (!valid) {
-                    const typeErrorCommand = this.colors.typeError?.command || "";
-                    const cmdNameOrChannel = cmd.name || cmd.channel;
-                    const typeErrorType = this.colors.typeError?.type || "";
-                    const invalidTypeMessage = "Invalid Type Provided";
-                    const typeErrorText = this.colors.typeError?.text || "";
-
-                    const debugMessage = `| ${typeErrorCommand}${cmdNameOrChannel}${this.allColors.reset} | ${typeErrorType}${cmd.type}${this.allColors.reset} | ${typeErrorText}${invalidTypeMessage}${this.allColors.reset} |`;
-
+                    const debugMessage = `${chalk.red("✖ Invalid Type Provided For")} '${cmd.name || cmd.channel}' ${chalk.gray(`(${cmd.type})`)} ${chalk.red("in")} '${pathName}'`;
                     debugs.push(debugMessage);
-
                     continue;
                 }
 
@@ -224,34 +203,26 @@ class LoadCommands {
                     }
                 } catch (e) {
                     console.error(e);
-                    debugs.push(
-                        `|${this.colors.failLoad?.command || ""}'${
-                            cmd.name || cmd.channel
-                        }'| ${this.colors.failLoad?.type || ""}${cmd.type}${
-                            this.allColors.reset
-                        }| ${this.colors.failLoad?.text || ""}Failed To Load${
-                            this.allColors.reset
-                        }`);
-
+                    const debugMessage = `${chalk.red("✖ Failed to load")} '${cmd.name || cmd.channel}' ${chalk.gray(`(${cmd.type})`)} ${chalk.red("in")} '${pathName}'`;
+                    debugs.push(debugMessage);
                     continue;
                 }
 
-                debugs.push(`Loaded ${this.colors.loaded?.command || ""}'${
-                    cmd.name || cmd.channel
-                }' ${this.colors.loaded?.type || ""}|${cmd.type}| ${
-                    this.allColors.reset || ""
-                }${this.colors.loaded?.text || ""}${this.allColors.reset || ""}`);
+                const debugMessage = `${chalk.green("✔ Loaded")} '${cmd.name || cmd.channel}' ${chalk.gray(`(${cmd.type})`)}`;
+                debugs.push(debugMessage);
             }
         }
 
         if (debug) {
-            console.log(
-                `|  ${this.colors.loaded?.command || ""}Command${
-                    this.allColors.reset
-                }  |  ${this.colors.loaded?.type || ""}Type${
-                    this.allColors.reset
-                }  |  ${this.colors.loaded?.text || ""}State${this.allColors.reset}  |
-|------------------------------------------|\n` + debugs.join("\n"),
+            AoiError.createConsoleMessage(
+                [
+                    ...debugs.map((debug) => ({
+                        text: debug,
+                        centered: false
+                    }))
+                ],
+                "white",
+                { text: "LoadCommands", textColor: "cyan" }
             );
         }
     }
@@ -261,51 +232,40 @@ class LoadCommands {
             for (const cmd of dp.keys) {
                 try {
                     if (cmd === "interaction") {
-                        dp.commandsLocation.interaction.slash =
-                            dp.commandsLocation.interaction.slash.filter((x) => !x.load);
-                        dp.commandsLocation.interaction.button =
-                            dp.commandsLocation.interaction.button.filter((x) => !x.load);
-                        dp.commandsLocation.interaction.selectMenu =
-                            dp.commandsLocation.interaction.selectMenu.filter((x) => !x.load);
-                        dp.commandsLocation.interaction.modal = dp.commandsLocation.interaction.modal.filter((x) => !x.load);
-                    } else
-                        dp.commandsLocation[cmd] = dp.commandsLocation[cmd].filter(
-                            (x) => !x.load,
-                        );
+                            dp.commandsLocation.interaction.slash = dp.commandsLocation.interaction.slash.filter((x) => !x.load);
+                            dp.commandsLocation.interaction.button = dp.commandsLocation.interaction.button.filter((x) => !x.load);
+                            dp.commandsLocation.interaction.selectMenu = dp.commandsLocation.interaction.selectMenu.filter((x) => !x.load);
+                            dp.commandsLocation.interaction.modal = dp.commandsLocation.interaction.modal.filter((x) => !x.load);	
+                    } else {
+                            dp.commandsLocation[cmd] = dp.commandsLocation[cmd].filter((x) => !x.load);
+                    }
                     if (cmd.loopInterval) {
                         clearInterval(cmd.loopInterval);
                     }
                 } catch (e) {
-
+                    throw new TypeError("Something went wrong, please check the error message: " + e);
                 }
             }
             await this.load(dp.commandsLocation, dp.path, debug);
         }
     }
 
-    setColors(
-        c = {
-            failLoad: null,
-            loading: null,
-            failedLoading: null,
-            loaded: null,
-            typeError: null,
-            noData: null,
-        },
-    ) {
+    setColors(c = { failLoad: null, loading: null, failedLoading: null, loaded: null, typeError: null, noData: null }) {
         for (const co of Object.keys(c)) {
             if (Array.isArray(c[co])) {
-                this.colors[co] = c[co]?.map((x) => this.allColors[x]).join(" ");
+                this.colors[co] = c[co].map((x) => this.allColors[x]).join(" ");
             } else if (typeof c[co] === "object" && !Array.isArray(c[co])) {
                 this.colors[co] = {};
                 for (const coo of Object.keys(c[co])) {
                     if (Array.isArray(c[co][coo])) {
-                        this.colors[co][coo] = c[co][coo]
-                            .map((x) => this.allColors[x])
-                            .join(" ");
-                    } else this.colors[co][coo] = c[co][coo];
+                        this.colors[co][coo] = c[co][coo].map((x) => this.allColors[x]).join(" ");
+                    } else {
+                        this.colors[co][coo] = c[co][coo];
+                    }
                 }
-            } else this.colors[co] = this.allColors[c[co]];
+            } else {
+                this.colors[co] = this.allColors[c[co]];
+            }
         }
     }
 }

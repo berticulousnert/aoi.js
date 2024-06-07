@@ -3,8 +3,8 @@ const {Command} = require("./Commands");
 const {FunctionManager} = require("./Functions");
 
 const [major] = process.version.replace("v", "").split(".");
-if (isNaN(Number(major)) || Number(major) < 16) {
-    throw new Error("node.js version must be v20 or above.");
+if (isNaN(Number(major)) || Number(major) < 20) {
+    throw new TypeError("node.js version 20 or higher is required to run aoi.js.");
 }
 
 // Initialize aoi.js Client
@@ -208,6 +208,14 @@ class Client extends BaseClient {
         this.addCommandType("voiceStateUpdate", d);
     }
 
+    pollVoteAddCommand(d = {}) {
+        this.addCommandType("pollVoteAdd", d);
+    }
+
+    pollVoteRemoveCommand(d = {}) {
+        this.addCommandType("pollVoteRemove", d);
+    }
+
     applicationCmdCreateCommand(d = {}) {
         this.addCommandType("applicationCmdCreate", d);
     }
@@ -256,10 +264,6 @@ class Client extends BaseClient {
         this.addCommandType("timeout", d);
     }
 
-    pulseCommand(d = {}) {
-        this.addCommandType("pulse", d);
-    }
-
     rateLimitCommand(d = {}) {
         this.addCommandType("rateLimit", d);
     }
@@ -293,5 +297,5 @@ class Client extends BaseClient {
     }
 }
 
-require("../utils/helpers/prototypes.js");
+require("../core/prototypes.js");
 module.exports = Client;

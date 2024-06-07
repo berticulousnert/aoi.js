@@ -2,24 +2,12 @@ const Discord = require("discord.js");
 const { CustomFunction } = require("../classes/Functions.js");
 const AoiError = require("../classes/AoiError.js");
 const Util = require("../classes/Util.js");
-const IF = require("../utils/helpers/if.js");
-//Helper of aoijs
-const { Time } = require("../utils/helpers/customParser.js");
-const { CheckCondition } = require("../utils/helpers/checkCondition.js");
-const { mustEscape } = require("../utils/helpers/mustEscape.js");
+const IF = require("./if.js");
+const { Time } = require("./Time.js");
+const { CheckCondition } = require("./CheckCondition.js");
+const { mustEscape } = require("./mustEscape.js");
 const { Command } = require("../classes/Commands.js");
 const PATH = require("path");
-const { deprecate } = require("util");
-const chalk = require("chalk");
-
-// Deprecate error for $if: old
-let isDeprecated = false;
-function deprecateOldIfUsage() {
-    if (!isDeprecated) {
-        deprecate(() => { }, `${chalk.grey("$if: 'old'")} is deprecated, use ${chalk.cyan("$if")} instead`)();
-        isDeprecated = true;
-    }
-}
 
 /**
  * @param  {import('../classes/AoiClient.js')} client
@@ -105,6 +93,7 @@ const Interpreter = async (
         let embeds;
         let deleteIn;
         let suppressErrors;
+        let flags;
         let editIn = undefined;
         let error;
         let attachments = [];
@@ -128,7 +117,6 @@ const Interpreter = async (
             functions: command.functions,
         };
         if (command["$if"] === "old") {
-            deprecateOldIfUsage();
             code = (
                 await IF({
                     client,
@@ -509,6 +497,9 @@ const Interpreter = async (
             if (FuncData?.allowedMentions) {
                 allowedMentions = FuncData.allowedMentions;
             }
+            if (FuncData?.flags) {
+                flags = FuncData.flags;
+            }
             if (FuncData?.embeds) {
                 embeds = FuncData.embeds;
             }
@@ -584,6 +575,7 @@ const Interpreter = async (
                     embeds: embeds,
                     files: attachments,
                     components: components,
+                    flags,
                     allowedMentions: {
                         parse: allowedMentions,
                         repliedUser: reply?.user || false,

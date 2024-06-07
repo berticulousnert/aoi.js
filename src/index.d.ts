@@ -3,7 +3,7 @@ import { Group, LimitGroup, SuperSet } from "@akarui/structures";
 import { Group as Collection } from "@akarui/structures";
 import { AllEvents } from "./utils/Constants";
 import { Constants } from "./utils/Constants";
-import { parsers } from "./handler/parsers";
+import { parsers } from "./events/parsers";
 
 declare module "aoi.js" {
     import { EventEmitter } from "events";
@@ -307,6 +307,8 @@ declare module "aoi.js" {
         reactionRemoveEmojiCommand(d: EventCommand): void;
         presenceUpdateCommand(d: EventCommand): void;
         voiceStateUpdateCommand(d: EventCommand): void;
+        voteAddCommand(d: EventCommand): void;
+        voteRemoveCommand(d: EventCommand): void;
         interactionCommand(d: InteractionCommand): void;
         applicationCmdCreateCommand(d: EventCommand): void;
         applicationCmdDeleteCommand(d: EventCommand): void;
@@ -319,7 +321,6 @@ declare module "aoi.js" {
         functionErrorCommand(d: EventCommand): void;
         loopCommand(d: LoopCommand): void;
         timeoutCommand(d: EventCommand): void;
-        pulseCommand(d: EventCommand): void;
         rateLimitCommand(d: EventCommand): void;
         webhooksUpdateCommand(d: EventCommand): void;
     }
