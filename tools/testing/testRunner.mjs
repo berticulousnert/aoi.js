@@ -2,6 +2,7 @@ import { run } from 'node:test';
 import process from 'node:process';
 import customReporter from './testReporter.mjs';
 import * as glob from 'glob';
+import { cpus } from 'node:os';
 
 const argvs = process.argv.slice(3);
 
@@ -24,7 +25,7 @@ const files = glob.sync(`${globBase}/**/*.test.ts`);
 const testStream = run({
 	files,
 	timeout: 60 * 1000,
-	concurrency: true,
+	concurrency: cpus().length,
 	forceExit: true,
 });
 

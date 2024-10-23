@@ -43,11 +43,10 @@ void describe('$abs', () => {
 	void it('should return 200 for 200', async () => {
 		// logs true
 		const orignalLog = console.log;
-		let logged: Record<string, string> = { content: 'hi' };
+		let logged: unknown;
 
 		console.log = (log: Record<string, string>) => {
-			logged = log;
-			// orignalLog(log);
+			logged = client.parseData(log.content, $abs.returns);
 		};
 
 		const { func } = client.transpiler.transpile(codeWithPositive, transpilerOptions);
@@ -57,17 +56,16 @@ void describe('$abs', () => {
 
 		console.log = orignalLog;
 
-		assert.strictEqual(logged.content.toString(), '200');
+		assert.strictEqual(logged, 200);
 	});
 
 	void it('should return 200 for -200', async () => {
 		// logs false
 		const orignalLog = console.log;
-		let logged: Record<string, string> = { content: 'hi' };
+		let logged: unknown;
 
 		console.log = (log: Record<string, string>) => {
-			logged = log;
-			// orignalLog(log);
+			logged = client.parseData(log.content, $abs.returns);
 		};
 
 		const { func } = client.transpiler.transpile(codeWithNegative, transpilerOptions);
@@ -77,6 +75,6 @@ void describe('$abs', () => {
 
 		console.log = orignalLog;
 
-		assert.strictEqual(logged.content.toString(), -200);
+		assert.strictEqual(logged, 200);
 	});
 });

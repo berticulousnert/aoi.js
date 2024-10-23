@@ -20,6 +20,7 @@ import { parseResult } from '@aoi.js/utils/Helpers/core.js';
 import { type MinifyOutput, minify } from 'uglify-js';
 import { type AsyncFunction } from '@aoi.js/typings/type.js';
 import { fixMath } from './parsers/math.js';
+import { parseFnBlock } from './parsers/fnblock.js';
 
 export default class Transpiler {
 	static instance: Transpiler | undefined = undefined;
@@ -254,10 +255,6 @@ export default class Transpiler {
 		sendMessage = true,
 		asFunction = true,
 	) {
-		if (reverse) {
-			ast.funcs = ast.funcs.reverse();
-		}
-
 		let i = 0;
 		while (i < ast.funcs.length) {
 			const node = ast.funcs[i];
@@ -322,10 +319,15 @@ export default class Transpiler {
 		}
 
 		const scope = scopes.at(-1)!;
-		if (sendMessage)
+		if (sendMessage) {
 			for (const part of scope._contentParts) {
 				ast.executed = ast.executed.replace(part, '');
 			}
+		}
+
+		if (reverse) {
+			ast.executed = parseFnBlock(ast.executed);
+		}
 
 		return scope.generate(ast.executed, sendMessage, asFunction);
 	}

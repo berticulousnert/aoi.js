@@ -2,11 +2,12 @@ import { BundlerCustoms, TranspilerCustoms } from '@aoi.js/typings/enum.js';
 import TextBlock from '../builders/TextBlock.js';
 
 export function createStringAST(text: string) {
+
 	let block = new TextBlock(0, true);
 	let i = 0;
 	let res = '';
 
-	while (i < text.length) {
+	while (i <= text.length) {
 		if (res.includes(TranspilerCustoms.FS)) {
 			const child = new TextBlock(block.children.length, false, block);
 
@@ -44,6 +45,7 @@ export function createStringAST(text: string) {
 
 			res = text[i] ?? '';
 		} else {
+			if (i === text.length)  break;
 			res += text[i] ?? '';
 			block.addText(text[i] ?? '');
 		}

@@ -111,3 +111,9 @@ export interface IAoiLoggerOptions {
 	warnings?: boolean;
 	errors?: boolean;
 }
+
+export interface IFnBlock {
+	text: string;
+	children: IFnBlock[];
+	parent: IFnBlock | undefined;
+}
