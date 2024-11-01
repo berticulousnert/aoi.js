@@ -13,7 +13,7 @@ export interface ITranspilerOptions {
 export interface ITranspileOptions {
 	reverse?: boolean;
 	parsedStringOnly?: boolean;
-	command?: Command;
+	command: Command;
 	sendMessage?: boolean;
 	scopeData?: IScopeData;
 	asFunction?: boolean;
@@ -29,6 +29,7 @@ export interface IScopeData {
 	object?: Record<string, StringObject>;
 	embeddedJS?: string[];
 	useChannel?: Snowflake | string;
+	addReturn?: boolean;
 }
 
 export interface IFunctionData {
@@ -50,7 +51,7 @@ export interface ICodeFunctionData extends IFunctionData {
 	funcs: ICodeFunctionData[];
 	parsed?: string;
 	executed: string;
-	cmd?: Command;
+	cmd: Command;
 }
 
 export interface IFunctionField {
@@ -116,4 +117,19 @@ export interface IFnBlock {
 	text: string;
 	children: IFnBlock[];
 	parent: IFnBlock | undefined;
+}
+
+export interface  IOk<T> {
+	success: true;
+	data: T;
+}
+
+export interface IErr<E> {
+	success: false;
+	error: E;
+}
+
+export interface IMacroOptions {
+	name: string;
+	code: string | AsyncFunction;
 }

@@ -20,7 +20,7 @@ const compat = new FlatCompat({
 
 export default [
 	// jsdoc.configs['flat/recommended'],
-	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' }, ignorePatterns: ['**/node_modules/**', '**/dist/**'] },
 
 	...compat.extends('xo-typescript'),
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -49,6 +49,15 @@ export default [
 				},
 				{ selector: 'parameter', format: ['camelCase'] },
 				{ selector: 'typeLike', format: ['PascalCase'] },
+				// all interfaces should be prefixed with I
+				{
+					selector: 'interface',
+					format: ['PascalCase'],
+					custom: {
+						regex: '^I[A-Z]+',
+						match: true,
+					},
+				},
 			],
 			'@typescript-eslint/prefer-literal-enum-member': [
 				'error',

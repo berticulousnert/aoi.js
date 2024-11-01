@@ -266,7 +266,7 @@ export default class Scope {
 			this.hasSendData && sendMessage
 				? `
 		${this.addReturn ? 'return ' : ''} await ${channelSendFunction}( ${payload} );`
-				: '';
+				: `${this.addReturn ? 'return;' : ''}`;
 
 		const initialVars = sendMessage
 			? `	  

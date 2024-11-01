@@ -17,3 +17,6 @@ plugins
 /dist
 ignore
 /lib/**/index.js
+.ignore
+.tmp
+.coverage

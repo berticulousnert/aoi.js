@@ -1,10 +1,22 @@
 import FunctionBuilder from '@aoi.js/core/builders/Function.js';
-import { TranspilerError } from '@aoi.js/core/Error.js';
+import AoiError from '@aoi.js/core/Error.js';
 import { fixMath } from '@aoi.js/core/parsers/math.js';
 import { parseString } from '@aoi.js/core/parsers/string.js';
-import { FunctionType, ReturnType } from '@aoi.js/typings/enum.js';
+import { ErrorCode, FunctionType, ReturnType } from '@aoi.js/typings/enum.js';
 import { escapeResult } from '@aoi.js/utils/Helpers/core.js';
 
+/**
+ * Logs the message to the console
+ * @example
+ * ```aoi
+ * ---
+ * name: log
+ * type: basic
+ * ---
+ * 
+ * $log[Hello World] // Logs Hello World to the console
+ * ```
+ */
 const $log = new FunctionBuilder()
 	.setName('$log')
 	.setBrackets(true)
@@ -24,7 +36,8 @@ const $log = new FunctionBuilder()
 		const [message] = thisArg.getParams(data);
 
 		if (!message && !thisArg.canSuppressAtComp(data, currentScope)) {
-			throw TranspilerError.CompileError(
+			throw AoiError.FunctionError(
+				ErrorCode.MissingParameter,
 				'No message provided to log.',
 				data,
 			);

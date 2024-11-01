@@ -24,11 +24,11 @@ export function createFunctionBlockAst(text: string) {
 			block.children.push(child);
 
 			block = child;
-			block.text += (text[i]);
+			block.text += TranspilerCustoms.FS + (text[i] ?? '');
 
 			res = text[i] ?? '';
 		} else if (res.includes(TranspilerCustoms.FE)) {
-			block.text = block.text.replace(TranspilerCustoms.FE, '');
+			// block.text = block.text.replace(TranspilerCustoms.FE, '');
 
 			block = block.parent ?? block;
 			block.text += (text[i] ?? '');

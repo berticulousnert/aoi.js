@@ -9,11 +9,16 @@ import {
 	type ICodeFunctionData,
 	type ITranspilerData,
 } from '@aoi.js/typings/interface.js';
-import { type ProxyType, type FunctionCode } from '@aoi.js/typings/type.js';
+import {
+	type ProxyType,
+	type FunctionCode,
+	type CommandTypes,
+} from '@aoi.js/typings/type.js';
 import type Scope from './Scope.js';
 import { inspect } from 'node:util';
 import proxyBuilder from './typeProxy.js';
 import { escapeVars } from '@aoi.js/utils/Helpers/core.js';
+import type StringObject from './StringObject.js';
 
 export default class FunctionBuilder implements IFunctionData {
 	name!: string;
@@ -98,7 +103,7 @@ export default class FunctionBuilder implements IFunctionData {
 
 	getParams(data: ICodeFunctionData): string[] {
 		return data.fields.length === 1 &&
-			![ReturnType.Any, ReturnType.Array].includes(data.fields[0].type)
+			!this.#isReturnAnyOrArray(data.fields[0].type)
 			? [data.executed]
 			: data.splits();
 	}
@@ -165,7 +170,7 @@ export default class FunctionBuilder implements IFunctionData {
 		let bodyWithoutArg = body.replace(matchWholeArgwithAsync, '');
 
 		if (arg !== '') {
-			bodyWithoutArg = this.#replaceArgInFunctionStringWithDiscord(
+			bodyWithoutArg = this.#replaceArgInFunctionStringWithVar(
 				bodyWithoutArg,
 				arg,
 			);
@@ -180,7 +185,7 @@ export default class FunctionBuilder implements IFunctionData {
 		const numbers = bodyWithoutBrackets.match(findNumbersRegex);
 
 		if (!numbers) {
-			return bodyWithoutBrackets;
+			return bodyWithoutBrackets.trim();
 		}
 
 		let result = bodyWithoutBrackets;
@@ -218,13 +223,122 @@ export default class FunctionBuilder implements IFunctionData {
 		}
 	}
 
-	#replaceArgInFunctionStringWithDiscord(func: string, arg: string) {
+	for(
+		start: number,
+		end: number,
+		incrementFn: (i: number) => number,
+		code: string,
+		variable = 'loop_index',
+	) {
+		return `for (let ${variable} = ${start}; ${variable} < ${end}; ${variable} = ${this.#replaceArgInFunctionStringWithVar(incrementFn.toString(), 'i', variable)}) { ${code} }\n`;
+	}
+
+	forOf(variable: string, object: string, code: string): string {
+		return `for (const ${variable} of ${object}) { ${code} }\n`;
+	}
+
+	forIn(variable: string, object: string, code: string): string {
+		return `for (const ${variable} in ${object}) { ${code} }\n`;
+	}
+
+	parseData<T extends ReturnType>(data: string, type: T) {
+		if (
+			data.startsWith(TranspilerCustoms.FS) ||
+			data.startsWith(TranspilerCustoms.MFS) ||
+			data.includes('__$DISCORD_DATA$__')
+		) {
+			return data;
+		}
+
+		switch (type) {
+			case ReturnType.Number:
+				return Number(data) as T extends ReturnType.Number
+					? number
+					: never;
+			case ReturnType.Boolean:
+				return (data === 'true') as T extends ReturnType.Boolean
+					? boolean
+					: never;
+			default:
+				return data;
+		}
+	}
+
+	isCorrectType(data: string | number | boolean, type: ReturnType): boolean {
+		if (
+			typeof data === 'string' &&
+			(data.startsWith(TranspilerCustoms.FS) ||
+				data.startsWith(TranspilerCustoms.MFS) ||
+				data.includes('__$DISCORD_DATA$__'))
+		) {
+			return true;
+		}
+
+		if (typeof data === 'string') data = data.trim();
+
+		switch (type) {
+			case ReturnType.Number:
+				return !isNaN(Number(data));
+			case ReturnType.Boolean:
+				return data === 'true' || data === 'false';
+			case ReturnType.Array:
+				return (
+					(data as string).startsWith('[') &&
+					(data as string).endsWith(']')
+				);
+			case ReturnType.Object:
+				return (
+					(data as string).startsWith('{') &&
+					(data as string).endsWith('}')
+				);
+			default:
+				return true;
+		}
+	}
+
+	getCommand(
+		name: string,
+		type: CommandTypes,
+		extraData?: StringObject,
+	): string {
+		return this.getResultString(
+			async (discordData) =>
+				(await discordData.bot.managers.commands[
+					'$1' as unknown as CommandTypes
+				]
+					.find((cmd) => cmd.name === '$0')
+					?.__compiled__({
+						...discordData,
+						data: '$2' as unknown as Record<string, unknown>,
+					})) ?? '',
+			[name, type, extraData?.solve() ?? ''],
+		);
+	}
+
+	generateHash(): string {
+		return Math.random().toString(36).substring(7);
+	}
+
+	#replaceArgInFunctionStringWithVar(
+		func: string,
+		arg: string,
+		variable = '__$DISCORD_DATA$__',
+	): string {
 		// it will replace all arg with __$DISCORD_DATA$__ and wont replace same word if it is a part of another word or a property
 
 		const regex = new RegExp(
 			`(?<![a-zA-Z0-9_.])(${arg})(?![a-zA-Z0-9_])`,
 			'g',
 		);
-		return func.replaceAll(regex, '__$DISCORD_DATA$__');
+		return func.replaceAll(regex, variable);
+	}
+
+	// a function to check if return type contains ReturnType.Any or ReturnType.Array
+	#isReturnAnyOrArray(returnType: ReturnType): boolean {
+		// types are power of 2 that can be or'd together
+		return (
+			((returnType & ReturnType.Any) as ReturnType) === ReturnType.Any ||
+			((returnType & ReturnType.Array) as ReturnType) === ReturnType.Array
+		);
 	}
 }

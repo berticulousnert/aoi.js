@@ -2,7 +2,20 @@ import FunctionBuilder from '@aoi.js/core/builders/Function.js';
 import { FunctionType, ReturnType } from '@aoi.js/typings/enum.js';
 import { escapeResult } from '@aoi.js/utils/Helpers/core.js';
 
-const $guildId = new FunctionBuilder()
+/**
+ * Returns the id of the guild.
+ * @example
+ * ```aoi
+ * ---
+ * name: guildid
+ * type: basic
+ * ---
+ * 
+ * $guildid // returns the id of the current guild
+ * $guildid[guild name] // returns the id of the guild with the given name
+ * ```
+ */
+const $guildid = new FunctionBuilder()
 	.setName('$guildid')
 	.setBrackets(true)
 	.setOptional(true)
@@ -40,4 +53,4 @@ const $guildId = new FunctionBuilder()
 	})
 	.build();
 
-export { $guildId };
+export { $guildid };

@@ -1,5 +1,5 @@
-import { BundlerCustoms } from '@aoi.js/typings/enum.js';
-import { TranspilerError } from './Error.js';
+import { BundlerCustoms, ErrorCode } from '@aoi.js/typings/enum.js';
+import AoiError from './Error.js';
 import { type ICommandOptions } from '@aoi.js/typings/interface.js';
 import { type Optional } from '@aoi.js/typings/type.js';
 import type AoiClient from '@aoi.js/classes/AoiClient.js';
@@ -49,7 +49,11 @@ export default class AoiReader {
 		}
 
 		if (cntr) {
-			throw TranspilerError.AoiReaderError('Invalid embedded JS', code);
+			throw AoiError.ReaderError(
+				ErrorCode.EmbedBracketsMismatch,
+				'Invalid embedded JS',
+				code,
+			);
 		}
 
 		return embeds;

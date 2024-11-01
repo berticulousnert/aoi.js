@@ -34,13 +34,13 @@ export function _getObjectAst(
 
 	while (i < objectString.length) {
 		const char = objectString[i];
+		// console.log(char)
 		if (char === '{' || char === '[') {
 			const newObject = new StringObject(char, currentObject);
 			currentObject.addValue(`#StringObject_${newObject.name}#`);
 			currentObject = newObject;
 		} else if (char === '}' || char === ']') {
 			currentObject.addEnd(char);
-
 			if (text.trim() !== '') {
 				const t = parseData(text.trim());
 				if (typeof t === 'string') {
@@ -72,9 +72,21 @@ export function _getObjectAst(
 		} else {
 			text += char;
 		}
+
+		i++;
+	}
+
+	if (text.trim() !== '') {
+		const t = parseData(text.trim());
+		if (typeof t === 'string') {
+			_handleStringData(t, currentObject);
+		}
+
+		text = '';
 	}
 
 	while (currentObject.parent) {
+		currentObject.parent?.pushChild(currentObject);
 		currentObject = currentObject.parent;
 	}
 

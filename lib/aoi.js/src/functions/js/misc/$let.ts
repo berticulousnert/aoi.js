@@ -1,7 +1,7 @@
 import FunctionBuilder from '@aoi.js/core/builders/Function.js';
-import { TranspilerError } from '@aoi.js/core/Error.js';
+import AoiError from '@aoi.js/core/Error.js';
 import { parseString } from '@aoi.js/core/parsers/string.js';
-import { FunctionType, ReturnType } from '@aoi.js/typings/enum.js';
+import { ErrorCode, FunctionType, ReturnType } from '@aoi.js/typings/enum.js';
 import { escapeResult, parseData, stringify } from '@aoi.js/utils/Helpers/core.js';
 
 /**
@@ -42,11 +42,11 @@ const $let = new FunctionBuilder()
 		const [variable, value] = data.splits();
 
 		if (!variable && !thisArg.canSuppressAtComp(data, currentScope)) {
-			throw TranspilerError.CompileError('Variable name not provided.', data);
+			throw AoiError.FunctionError(ErrorCode.MissingParameter, 'Variable name not provided.', data);
 		}
 
 		if (!value && !thisArg.canSuppressAtComp(data, currentScope)) {
-			throw TranspilerError.CompileError('Value not provided.', data);
+			throw AoiError.FunctionError(ErrorCode.MissingParameter, 'Value not provided.', data);
 		}
 
 		let parsedValue = parseData(value);
