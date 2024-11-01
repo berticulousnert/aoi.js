@@ -49,7 +49,8 @@ const $ternary = new FunctionBuilder()
 
 		const resultString = thisArg.getResultString(
 			() =>
-				// @ts-expect-error: $0 will be replaced with the condition
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/prefer-ts-expect-error
+				// @ts-ignore
 				// eslint-disable-next-line no-constant-condition
 				'$0' ? '$1' : '$2',
 			[solvedCondition, parsedTrueCode, parsedFalseCode],

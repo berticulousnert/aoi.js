@@ -67,7 +67,8 @@ const $while = new FunctionBuilder()
 
 		const resultString = thisArg.getResultString(
 			() => {
-				// @ts-expect-error: $0 is a valid while loop condition
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/prefer-ts-expect-error
+				// @ts-ignore	
 				// eslint-disable-next-line no-constant-condition
 				while ('$0') {
 					// eslint-disable-next-line @typescript-eslint/no-unused-expressions, @typescript-eslint/semi

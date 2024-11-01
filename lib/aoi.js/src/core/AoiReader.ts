@@ -3,6 +3,7 @@ import AoiError from './Error.js';
 import { type ICommandOptions } from '@aoi.js/typings/interface.js';
 import { type Optional } from '@aoi.js/typings/type.js';
 import type AoiClient from '@aoi.js/classes/AoiClient.js';
+import Command from '@aoi.js/classes/Command.js';
 
 export default class AoiReader {
 	_parseEmbeddedJS(code: string) {
@@ -139,13 +140,17 @@ export default class AoiReader {
 			code = code.replace(`\${${ejs}}`, BundlerCustoms.EJS);
 		}
 
-		const cmd = this._parseCmd(code);
+		const cmd = new Command(
+			{ ...this._parseCmd(code), __path__: 'root' },
+			client,
+		);
 		cmd.code = client.transpiler.transpile(cmd.code as string, {
 			scopeData: {
 				embeddedJS: embeddedJS,
 			},
 			sendMessage: true,
 			reverse: cmd.reverseRead ?? false,
+			command: cmd,
 		}).func!;
 
 		return cmd;
