@@ -23,7 +23,7 @@ export default [
 	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' }, ignorePatterns: ['**/node_modules/**', '**/dist/**'] },
 
 	...compat.extends('xo-typescript'),
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+	 
 	// ...tseslint.configs.stylisticTypeChecked,
 	{
 		// enable object curly spacing
@@ -65,6 +65,7 @@ export default [
 					allowBitwiseExpressions: true,
 				},
 			],
+			'@typescript-eslint/prefer-ts-expect-error': 'off',
 		},
 	},
 	{

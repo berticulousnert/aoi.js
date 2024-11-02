@@ -101,7 +101,7 @@ const $loop = new FunctionBuilder()
 		let execute;
 
 		if (joined.startsWith('{execute:') && joined.endsWith('}')) {
-			const [name, type] = joined.slice(9, -1).split(':');
+			const [name, type] = joined.slice(9, -1).split(':').map((x) => x.trim());
 
 			if (!name || !type) {
 				throw AoijsErrorHandler.FunctionError(
@@ -119,7 +119,9 @@ const $loop = new FunctionBuilder()
 				);
 			}
 
-			execute = thisArg.for(0, parsedTime as number, (i) => i++, thisArg.getCommand(name, type as CommandTypes, stringObject));
+			const loopIndex = thisArg.as<number>('loop_index');
+
+			execute = thisArg.for(0, parsedTime as number, loopIndex.build() + '++', thisArg.getCommand(name, type as CommandTypes, stringObject));
 		} else {
 			let transpiler = Transpiler.instance!;
 			const hash = Math.random().toString(36).substring(7);
@@ -139,7 +141,7 @@ const $loop = new FunctionBuilder()
 			currentScope.functions += scope.functions + '\n';
 			currentScope.packages += scope.packages + '\n';
 
-			execute = thisArg.for(0, parsedTime as number, (i) => i++, result);
+			execute = thisArg.for(0, parsedTime as number, 'loop_index++', result);
 		}
 
 		const escaped = escapeResult(execute);

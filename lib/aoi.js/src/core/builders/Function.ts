@@ -226,11 +226,11 @@ export default class FunctionBuilder implements IFunctionData {
 	for(
 		start: number,
 		end: number,
-		incrementFn: (i: number) => number,
+		incrementFn: number | string,
 		code: string,
 		variable = 'loop_index',
 	) {
-		return `for (let ${variable} = ${start}; ${variable} < ${end}; ${variable} = ${this.#replaceArgInFunctionStringWithVar(incrementFn.toString(), 'i', variable)}) { ${code} }\n`;
+		return `for (let ${variable} = ${start}; ${variable} < ${end}; ${incrementFn.toString()}) { ${code} }\n`;
 	}
 
 	forOf(variable: string, object: string, code: string): string {
@@ -304,9 +304,9 @@ export default class FunctionBuilder implements IFunctionData {
 		return this.getResultString(
 			async (discordData) =>
 				(await discordData.bot.managers.commands[
-					'$1' as unknown as CommandTypes
+					'"$1"' as unknown as CommandTypes
 				]
-					.find((cmd) => cmd.name === '$0')
+					.find((cmd) => cmd.name === '"$0"')
 					?.__compiled__({
 						...discordData,
 						data: '$2' as unknown as Record<string, unknown>,
@@ -327,10 +327,13 @@ export default class FunctionBuilder implements IFunctionData {
 		// it will replace all arg with __$DISCORD_DATA$__ and wont replace same word if it is a part of another word or a property
 
 		const regex = new RegExp(
-			`(?<![a-zA-Z0-9_.])(${arg})(?![a-zA-Z0-9_])`,
+			`((?<![a-zA-Z0-9_.])|\\.{3})(${arg})(?![a-zA-Z0-9_])`,
 			'g',
 		);
-		return func.replaceAll(regex, variable);
+		return func.replaceAll(regex, (item) => {
+			if (item.startsWith('...')) return `...${variable}`;
+			return variable;
+		});
 	}
 
 	// a function to check if return type contains ReturnType.Any or ReturnType.Array

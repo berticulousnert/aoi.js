@@ -117,18 +117,19 @@ const $for = new FunctionBuilder()
 			command: data.cmd,
 		});
 
-		const { result: incrementResult, scope: incrementScope } = transpiler.transpile(incrementFn, {
-			sendMessage: true,
-			asFunction: false,
-			scopeData: {
-				vars: currentScope.variables,
-				name: `${data.name}_${hash}`,
-				object: currentScope.objects,
-				env: currentScope.env,
-			},
-			reverse: data.cmd?.reverseRead ?? false,
-			command: data.cmd,
-		});
+		const { result: incrementResult, scope: incrementScope } =
+			transpiler.transpile(incrementFn, {
+				sendMessage: false,
+				asFunction: false,
+				scopeData: {
+					vars: currentScope.variables,
+					name: `${data.name}_${hash}`,
+					object: currentScope.objects,
+					env: currentScope.env,
+				},
+				reverse: data.cmd?.reverseRead ?? false,
+				command: data.cmd,
+			});
 
 		currentScope.functions += incrementScope.functions + '\n';
 		currentScope.packages += incrementScope.packages + '\n';
@@ -139,7 +140,7 @@ const $for = new FunctionBuilder()
 			thisArg.for(
 				parsedStart as number,
 				parsedEnd as number,
-				() => incrementResult as unknown as number,
+				incrementResult,
 				result,
 			),
 		);

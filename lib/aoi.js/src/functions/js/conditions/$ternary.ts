@@ -49,7 +49,7 @@ const $ternary = new FunctionBuilder()
 
 		const resultString = thisArg.getResultString(
 			() =>
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/prefer-ts-expect-error
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				// eslint-disable-next-line no-constant-condition
 				'$0' ? '$1' : '$2',
