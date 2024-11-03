@@ -102,6 +102,7 @@ export default class FunctionBuilder implements IFunctionData {
 	}
 
 	getParams(data: ICodeFunctionData): string[] {
+		if (data.executed === '') return [];
 		return data.fields.length === 1 &&
 			!this.#isReturnAnyOrArray(data.fields[0].type)
 			? [data.executed]
