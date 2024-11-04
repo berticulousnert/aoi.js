@@ -9,15 +9,15 @@ import AoiError from '@aoi.js/core/Error.js';
  * @example
  * ```aoi
  * ---
- * name: authorBanner
+ * name: authoravatar
  * type: basic
  * ---
  *
- * $authorBanner // returns the banner of the author
+ * $authoravatar // returns the banner of the author
  * ```
  */
-const $authorbanner = new FunctionBuilder()
-	.setName('$authorbanner')
+const $authoravatar = new FunctionBuilder()
+	.setName('$authoravatar')
 	.setType(FunctionType.Getter)
 	.setReturns(ReturnType.String | ReturnType.Void)
 	.setBrackets(true)
@@ -43,22 +43,40 @@ const $authorbanner = new FunctionBuilder()
 		},
 	])
 	.setCode((data, scopes, thisArg) => {
+		const currentScope = thisArg.getCurrentScope(scopes);
 		const [size = '4096', dynamic = 'true', extension = 'png'] =
 			thisArg.getParams(data);
 
 		let parsedSize = thisArg.parseData(size, ReturnType.Number);
+		let parsedDyanmic = thisArg.parseData(dynamic, ReturnType.Boolean);
+		let result;
 
-		if (!thisArg.isCorrectType(parsedSize, ReturnType.Number)) {
+		if (
+			!thisArg.isCorrectType(parsedSize, ReturnType.Number) &&
+			!thisArg.canSuppressAtComp(data, currentScope)
+		) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'size' in function $authorBanner, got ${parsedSize} expected: number.`,
+				`Invalid type for parameter 'size' in function $authorAvatar, got ${parsedSize} expected: number.`,
 				data,
 			);
 		}
 
-		const result = thisArg.getResultString(
+		if (
+			!thisArg.isCorrectType(parsedDyanmic, ReturnType.Boolean) &&
+			!thisArg.canSuppressAtComp(data, currentScope)
+		) {
+			console.log({ dynamic, parsedDyanmic });
+			throw AoiError.FunctionError(
+				ErrorCode.InvalidArgumentType,
+				`Invalid type for parameter 'dynamic' in function $authorAvatar, got ${parsedDyanmic} expected: boolean.`,
+				data,
+			);
+		}
+
+		result = thisArg.getResultString(
 			(discordData) =>
-				discordData.author?.bannerURL({
+				discordData.author?.displayAvatarURL({
 					size: '$0',
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore $1 is a placeholder
@@ -77,4 +95,4 @@ const $authorbanner = new FunctionBuilder()
 	})
 	.build();
 
-export { $authorbanner };
+export { $authoravatar };

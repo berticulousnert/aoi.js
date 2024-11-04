@@ -33,6 +33,7 @@ const $username = new FunctionBuilder()
 		},
 	])
 	.setCode((data, scopes, thisArg) => {
+		const currentScope = thisArg.getCurrentScope(scopes);
 		const [userId] = thisArg.getParams(data);
 
 		let res;
@@ -40,28 +41,23 @@ const $username = new FunctionBuilder()
 			res = thisArg.getResultString(
 				(discordData) => discordData.author?.username,
 			);
-			const escaped = escapeResult(res);
-			return {
-				code: escaped,
-				scope: scopes,
-			};
-		}
+		} else {
+			let parsedUserId = thisArg.parseData(userId, ReturnType.Number);
 
-		let parsedUserId = thisArg.parseData(userId, ReturnType.Number);
+			if (!thisArg.isCorrectType(parsedUserId, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
+				throw AoiError.FunctionError(
+					ErrorCode.InvalidArgumentType,
+					`Invalid type for parameter 'userid' in function $username, got ${parsedUserId} expected: number.`,
+					data,
+				);
+			}
 
-		if (!thisArg.isCorrectType(parsedUserId, ReturnType.Number)) {
-			throw AoiError.FunctionError(
-				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'userid' in function $username, got ${parsedUserId} expected: number.`,
-				data,
+			res = thisArg.getResultString(
+				async (discordData) =>
+					(await discordData.client.users.fetch('$0'))?.username,
+				[parseString(userId)],
 			);
 		}
-
-		res = thisArg.getResultString(
-			async (discordData) =>
-				(await discordData.client.users.fetch('$0'))?.username,
-			[parseString(userId)],
-		);
 
 		const escaped = escapeResult(res);
 

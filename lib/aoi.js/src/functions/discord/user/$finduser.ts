@@ -56,7 +56,7 @@ const $finduser = new FunctionBuilder()
 				data,
 			);
 		} else {
-			var response = thisArg.getResultString(
+			res = thisArg.getResultString(
 				async (discordData) =>
 					discordData.client.users.cache.find(
 						(user) => user.id == '$0' || user.username == '$0',
@@ -66,8 +66,6 @@ const $finduser = new FunctionBuilder()
 					)?.id ?? ('$1' ? discordData.author?.id : ''),
 				[parseString(userResolver), parsedReturnSelf.toString()],
 			);
-
-			res = response;
 		}
 
 		const escaped = escapeResult(res);

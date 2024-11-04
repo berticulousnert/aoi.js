@@ -281,7 +281,7 @@ export default class FunctionBuilder implements IFunctionData {
 			case ReturnType.Number:
 				return !isNaN(Number(data));
 			case ReturnType.Boolean:
-				return data === 'true' || data === 'false';
+				return data === true || data === false;
 			case ReturnType.Array:
 				return (
 					(data as string).startsWith('[') &&

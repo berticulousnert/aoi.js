@@ -19,7 +19,7 @@ const $authorid = new FunctionBuilder()
 	.setType(FunctionType.Getter)
 	.setReturns(ReturnType.String | ReturnType.Void)
 	.setBrackets(false)
-	.setOptional(true)
+	.setOptional(false)
 	.setFields([])
 	.setCode((data, scopes, thisArg) => {
 
