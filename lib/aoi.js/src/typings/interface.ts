@@ -1,9 +1,22 @@
 import type AoiClient from '@aoi.js/classes/AoiClient.js';
 import { type ReturnType, type FunctionType } from './enum.js';
-import { type AoiEventNames, type AsyncFunction, type CommandTypes, type FunctionCode } from './type.js';
+import {
+	type AoiEventNames,
+	type AsyncFunction,
+	type CommandTypes,
+	type FunctionCode,
+} from './type.js';
 import type StringObject from '../core/builders/StringObject.js';
 import type Command from '@aoi.js/classes/Command.js';
-import { type User, type Channel, type Client, type ClientOptions, type Guild, type Message, type GuildMember } from 'discord.js';
+import {
+	type User,
+	type Channel,
+	type Client,
+	type ClientOptions,
+	type Guild,
+	type Message,
+	type GuildMember,
+} from 'discord.js';
 
 export interface ITranspilerOptions {
 	customFunctions: Record<string, IFunctionData>;
@@ -101,7 +114,7 @@ export interface IAoiClientOptions {
 			time?: number;
 		};
 	};
-	cache?: Record<string, number | undefined  >;
+	cache?: Record<string, number | undefined>;
 	djsClientOptions?: ClientOptions;
 	transpilerOptions?: ITranspilerOptions;
 	testMode?: boolean;
@@ -119,7 +132,7 @@ export interface IFnBlock {
 	parent: IFnBlock | undefined;
 }
 
-export interface  IOk<T> {
+export interface IOk<T> {
 	success: true;
 	data: T;
 }
