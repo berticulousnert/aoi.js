@@ -24,51 +24,55 @@ const $messagetype = new FunctionBuilder()
 	.setReturns(ReturnType.String)
 	.setFields([
 		{
-			name: 'channelid',
+			name: 'channelId',
 			type: ReturnType.Number,
 			required: false,
 			description: 'channelId to use',
 		},
 		{
-			name: 'messageid',
+			name: 'messageId',
 			type: ReturnType.Number,
 			required: false,
 			description: 'messageId to check',
 		},
 	])
 	.setCode((data, scopes, thisArg) => {
-		const [messageid, channelid] = thisArg.getParams(data);
+		let [messageId, channelId] = thisArg.getParams(data);
 		const currentScope = thisArg.getCurrentScope(scopes);
 		let result;
 
 		if (
-			!messageid &&
+			!messageId &&
 			!thisArg.canSuppressAtComp(data, currentScope)
 		) {
 			throw AoiError.FunctionError(
 				ErrorCode.MissingParameter,
-				'Missing parameter \'messageid\' in function $messageexist.',
+				'Missing parameter \'messageId\' in function $messageexist.',
 				data,
 			);
 		}
 
-		if (channelid) {
-			let parsedChannelId = thisArg.parseData(channelid, ReturnType.Number);
-			if (!thisArg.isCorrectType(parsedChannelId, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
-				throw AoiError.FunctionError(
-					ErrorCode.InvalidArgumentType,
-					`Invalid type for parameter 'channelid' in function $messagetype, got ${parsedChannelId} expected: number.`,
-					data,
-				);
-			}
+		if (!channelId) {
+			channelId = thisArg.getResultString(
+				(discordData) => discordData.channel?.id,
+			);
 		}
 
-		let parsedMessageId = thisArg.parseData(messageid, ReturnType.Number);
+		let parsedChannelId = thisArg.parseData(channelId, ReturnType.Number);
+		if (!thisArg.isCorrectType(parsedChannelId, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
+			throw AoiError.FunctionError(
+				ErrorCode.InvalidArgumentType,
+				`Invalid type for parameter 'channelId' in function $messagetype, got ${parsedChannelId} expected: number.`,
+				data,
+			);
+		}
+
+		let parsedMessageId = thisArg.parseData(messageId, ReturnType.Number);
 
 		if (!thisArg.isCorrectType(parsedMessageId, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'messageid' in function $messagetype, got ${parsedMessageId} expected: number.`,
+				`Invalid type for parameter 'messageId' in function $messagetype, got ${parsedMessageId} expected: number.`,
 				data,
 			);
 		}
@@ -79,7 +83,7 @@ const $messagetype = new FunctionBuilder()
 			  //@ts-expect-error
 			  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
 			  (await discordData.client.channels.cache.get('$0' || discordData.channel.id)?.messages.fetch('$1'))?.type ?? '',
-			[parseString(channelid), parseString(messageid)],
+			[parseString(channelId), parseString(messageId)],
 		  );
 
 		const escaped = escapeResult(result);

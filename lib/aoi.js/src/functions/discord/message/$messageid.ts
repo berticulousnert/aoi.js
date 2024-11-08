@@ -8,15 +8,15 @@ import { escapeResult } from '@aoi.js/utils/Helpers/core.js';
  * @example
  * ```aoi
  * ---
- * name: messageid
+ * name: messageId
  * type: basic
  * ---
  *
- * $messageid // returns the messageid
+ * $messageId // returns the messageId
  * ```
  */
-const $messageid = new FunctionBuilder()
-	.setName('$messageid')
+const $messageId = new FunctionBuilder()
+	.setName('$messageId')
 	.setBrackets(false)
 	.setOptional(false)
 	.setType(FunctionType.Getter)
@@ -39,4 +39,4 @@ const $messageid = new FunctionBuilder()
 	})
 	.build();
 
-export { $messageid };
+export { $messageId };

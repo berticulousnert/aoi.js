@@ -55,7 +55,7 @@ const $messageslice = new FunctionBuilder()
 		if (!thisArg.isCorrectType(parsedTo, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'messageid' in function $messageslice, got ${parsedTo} expected: number.`,
+				`Invalid type for parameter 'messageId' in function $messageslice, got ${parsedTo} expected: number.`,
 				data,
 			);
 		}
@@ -65,7 +65,7 @@ const $messageslice = new FunctionBuilder()
 			  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			  //@ts-expect-error
 				discordData.args?.slice('$0', '$1').join(' ') ?? '',
-			[parseString(from), parseString(to)],
+			[parsedFrom.toString(), parsedTo.toString()],
 		  );
 
 		const escaped = escapeResult(result);
