@@ -92,7 +92,7 @@ const $messageflags = new FunctionBuilder()
 			  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			  //@ts-expect-error
 			  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-				discordData.client.channels.cache.get('$0' || discordData.channel.id)?.messages.fetch('$1')?.flags.toArray().join('$2') ?? '',
+				discordData.client.channels.cache.get('$0')?.messages.fetch('$1')?.flags.toArray().join('$2') ?? '',
 			[parseString(channelId), parseString(messageId), parseString(sep)],
 		  );
 

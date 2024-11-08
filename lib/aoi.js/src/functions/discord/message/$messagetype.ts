@@ -77,7 +77,7 @@ const $messagetype = new FunctionBuilder()
 			  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			  //@ts-expect-error
 			  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-			  (await discordData.client.channels.cache.get('$0' || discordData.channel.id)?.messages.fetch('$1'))?.type ?? '',
+			  (await discordData.client.channels.cache.get('$0')?.messages.fetch('$1'))?.type ?? '',
 			[parseString(channelId), parseString(messageId)],
 		  );
 
