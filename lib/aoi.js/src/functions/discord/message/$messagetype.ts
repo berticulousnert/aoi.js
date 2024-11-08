@@ -2,6 +2,7 @@ import FunctionBuilder from '@aoi.js/core/builders/Function.js';
 import AoiError from '@aoi.js/core/Error.js';
 import { parseString } from '@aoi.js/core/parsers/string.js';
 import { ErrorCode, FunctionType, ReturnType } from '@aoi.js/typings/enum.js';
+import DEFAULTS from '@aoi.js/utils/Constants/functions.js';
 import { escapeResult } from '@aoi.js/utils/Helpers/core.js';
 
 /**
@@ -37,7 +38,7 @@ const $messagetype = new FunctionBuilder()
 		},
 	])
 	.setCode((data, scopes, thisArg) => {
-		let [messageId, channelId] = thisArg.getParams(data);
+		const [messageId, channelId = DEFAULTS.channel('id')] = thisArg.getParams(data);
 		const currentScope = thisArg.getCurrentScope(scopes);
 		let result;
 
@@ -49,12 +50,6 @@ const $messagetype = new FunctionBuilder()
 				ErrorCode.MissingParameter,
 				'Missing parameter \'messageId\' in function $messageexist.',
 				data,
-			);
-		}
-
-		if (!channelId) {
-			channelId = thisArg.getResultString(
-				(discordData) => discordData.channel?.id,
 			);
 		}
 
