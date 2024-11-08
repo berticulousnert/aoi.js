@@ -25,7 +25,7 @@ const $messageflags = new FunctionBuilder()
 	.setFields([
 		{
 			name: 'channelId',
-			type: ReturnType.Number,
+			type: ReturnType.String,
 			required: false,
 			description: 'channelId to use',
 		},
@@ -37,7 +37,7 @@ const $messageflags = new FunctionBuilder()
 		},
 		{
 			name: 'messageId',
-			type: ReturnType.Number,
+			type: ReturnType.String,
 			required: true,
 			description: 'messageId to check',
 		},
@@ -64,22 +64,22 @@ const $messageflags = new FunctionBuilder()
 			);
 		}
 
-		let parsedChannelId = thisArg.parseData(channelId, ReturnType.Number);
-		if (!thisArg.isCorrectType(parsedChannelId, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
+		let parsedChannelId = thisArg.parseData(channelId, ReturnType.String);
+		if (!thisArg.isCorrectType(parsedChannelId, ReturnType.String) && !thisArg.canSuppressAtComp(data, currentScope)) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'channelId' in function $messageflags, got ${parsedChannelId} expected: number.`,
+				`Invalid type for parameter 'channelId' in function $messageflags, got ${parsedChannelId} expected: String.`,
 				data,
 			);
 		}
 
-		let parsedMessageId = thisArg.parseData(messageId, ReturnType.Number);
+		let parsedMessageId = thisArg.parseData(messageId, ReturnType.String);
 		let parsedSeperator = thisArg.parseData(messageId, ReturnType.String);
 
-		if (!thisArg.isCorrectType(parsedMessageId, ReturnType.Number) && !thisArg.canSuppressAtComp(data, currentScope)) {
+		if (!thisArg.isCorrectType(parsedMessageId, ReturnType.String) && !thisArg.canSuppressAtComp(data, currentScope)) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'messageId' in function $messageflags, got ${parsedMessageId} expected: number.`,
+				`Invalid type for parameter 'messageId' in function $messageflags, got ${parsedMessageId} expected: String.`,
 				data,
 			);
 		}
@@ -87,7 +87,7 @@ const $messageflags = new FunctionBuilder()
 		if (!thisArg.isCorrectType(parsedSeperator, ReturnType.String) && !thisArg.canSuppressAtComp(data, currentScope)) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'seperator' in function $messageflags, got ${parsedSeperator} expected: string.`,
+				`Invalid type for parameter 'seperator' in function $messageflags, got ${parsedSeperator} expected: String.`,
 				data,
 			);
 		}

@@ -58,27 +58,27 @@ const $messageexists = new FunctionBuilder()
 			);
 		}
 
-		let parsedMessageId = thisArg.parseData(messageId, ReturnType.Number);
-		let parsedChannelId = thisArg.parseData(messageId, ReturnType.Number);
+		let parsedMessageId = thisArg.parseData(messageId, ReturnType.String);
+		let parsedChannelId = thisArg.parseData(messageId, ReturnType.String);
 
 		if (
-			!thisArg.isCorrectType(parsedChannelId, ReturnType.Number) &&
+			!thisArg.isCorrectType(parsedChannelId, ReturnType.String) &&
 				!thisArg.canSuppressAtComp(data, currentScope)
 		) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'channelId' in function $messageexist, got ${parsedChannelId} expected: number.`,
+				`Invalid type for parameter 'channelId' in function $messageexist, got ${parsedChannelId} expected: String.`,
 				data,
 			);
 		}
 
 		if (
-			!thisArg.isCorrectType(parsedMessageId, ReturnType.Number) &&
+			!thisArg.isCorrectType(parsedMessageId, ReturnType.String) &&
 			!thisArg.canSuppressAtComp(data, currentScope)
 		) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'messageId' in function $messageexist, got ${parsedMessageId} expected: number.`,
+				`Invalid type for parameter 'messageId' in function $messageexist, got ${parsedMessageId} expected: String.`,
 				data,
 			);
 		}

@@ -25,13 +25,13 @@ const $messagepublish = new FunctionBuilder()
 	.setFields([
 		{
 			name: 'channelId',
-			type: ReturnType.Number,
+			type: ReturnType.String,
 			required: false,
 			description: 'channelId to use',
 		},
 		{
 			name: 'messageId',
-			type: ReturnType.Number,
+			type: ReturnType.String,
 			required: false,
 			description: 'messageId to check',
 		},
@@ -58,27 +58,27 @@ const $messagepublish = new FunctionBuilder()
 			);
 		}
 
-		let parsedChannelId = thisArg.parseData(channelId, ReturnType.Number);
+		let parsedChannelId = thisArg.parseData(channelId, ReturnType.String);
 		if (
-			!thisArg.isCorrectType(parsedChannelId, ReturnType.Number) &&
+			!thisArg.isCorrectType(parsedChannelId, ReturnType.String) &&
 				!thisArg.canSuppressAtComp(data, currentScope)
 		) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'channelId' in function $messagepublish, got ${parsedChannelId} expected: number.`,
+				`Invalid type for parameter 'channelId' in function $messagepublish, got ${parsedChannelId} expected: String.`,
 				data,
 			);
 		}
 
-		let parsedMessageId = thisArg.parseData(messageId, ReturnType.Number);
+		let parsedMessageId = thisArg.parseData(messageId, ReturnType.String);
 
 		if (
-			!thisArg.isCorrectType(parsedMessageId, ReturnType.Number) &&
+			!thisArg.isCorrectType(parsedMessageId, ReturnType.String) &&
 			!thisArg.canSuppressAtComp(data, currentScope)
 		) {
 			throw AoiError.FunctionError(
 				ErrorCode.InvalidArgumentType,
-				`Invalid type for parameter 'messageId' in function $messagepublish, got ${parsedMessageId} expected: number.`,
+				`Invalid type for parameter 'messageId' in function $messagepublish, got ${parsedMessageId} expected: String.`,
 				data,
 			);
 		}
